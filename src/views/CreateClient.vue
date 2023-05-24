@@ -13,49 +13,82 @@
             maximum 5 payments
             </b-alert>
         </div>
-                
-        <b-form>
+            
+        <b-form v-on:submit.prevent="saveClient" >
             <div class="form-client">
                 <b-row>
                     <b-col md=4>
                         <b-form-group id="input-group-1" label="First Name:" label-for="txtfname" class="label-input">
                             <b-form-input id="txtfname" v-model="form.first_name" type="text" placeholder="First Name"
-                                required></b-form-input>
+                                ></b-form-input>
+                            <div v-if="enviado && !$v.form.first_name.required" class="errorMessage">
+                                <i class="fa-solid fa-triangle-exclamation" style="color: #d80e18;"></i>  Please enter a First Name
+                            </div>
                         </b-form-group>
+
+                        
+
                     </b-col>
                     <b-col md=4>
                         <b-form-group id="input-group-2" label="Last Name:" label-for="txtlname" class="label-input">
                             <b-form-input id="txtlname" v-model="form.last_name" type="text" placeholder="Last Name"
-                                required></b-form-input>
+                                ></b-form-input>
+                                <div v-if="enviado && !$v.form.last_name.required" class="errorMessage">
+                                    <i class="fa-solid fa-triangle-exclamation" style="color: #d80e18;"></i>  Please enter a Last Name
+                                </div>
                         </b-form-group>
+
+                        
                     </b-col>
                     <b-col md=4>
                         <b-form-group id="input-group-3" label="DOB:" label-for="txtdob" class="label-input">
                             <b-form-input id="txtdob" v-model="form.dob" type="date" placeholder="DOB"
-                                required></b-form-input>
+                                ></b-form-input>
+                                <div v-if="enviado && !$v.form.dob.required" class="errorMessage"> 
+                                    <i class="fa-solid fa-triangle-exclamation" style="color: #d80e18;"></i>  Please enter a date
+                                </div>
                         </b-form-group>
+                        
                     </b-col>
+
+                    
                 </b-row>
 
                 <b-row>
                     <b-col md=4>
                         <b-form-group id="input-group-4" label="Phone:" label-for="txtphone" class="label-input">
-                            <b-form-input id="txtphone" v-model="form.phone" type="text" placeholder="Phone"
-                                required></b-form-input>
+                            <b-form-input id="txtphone" v-model="form.phone" type="number" placeholder="Phone"
+                                ></b-form-input>
+                                <div v-if="enviado && !$v.form.phone.required" class="errorMessage">
+                                    <i class="fa-solid fa-triangle-exclamation" style="color: #d80e18;"></i>  Please enter a phone number
+                                </div>
                         </b-form-group>
                     </b-col>
+                   
+
                     <b-col md=4>
                         <b-form-group id="input-group-5" label="Email:" label-for="txtemail" class="label-input">
                             <b-form-input id="txtemail" v-model="form.email" type="email" placeholder="Email"
-                                required></b-form-input>
+                                ></b-form-input>
+                            <div v-if="enviado && !$v.form.email.required" class="errorMessage">
+                                <i class="fa-solid fa-triangle-exclamation" style="color: #d80e18;"></i>  Please enter a valid email address
+                            </div>
                         </b-form-group>
                     </b-col>
+
+                    
+
                     <b-col md=4>
                         <b-form-group id="input-group-6" label="Address:" label-for="txtaddress" class="label-input">
                             <b-form-input id="txtaddress" v-model="form.address" type="text" placeholder="Address"
-                                required></b-form-input>
+                                ></b-form-input>
+                            <div v-if="enviado && !$v.form.address.required" class="errorMessage">
+                                <i class="fa-solid fa-triangle-exclamation" style="color: #d80e18;"></i>  Please enter an address
+                            </div>
                         </b-form-group>
                     </b-col>
+
+                  
                 </b-row>
 
             </div>
@@ -98,8 +131,8 @@
                                         class="text-center"></b-form-input>
                                 </b-col>
                                 <b-col cols="3" sm="3" class="text-center">
-                                    <b-button variant="danger" class="btn-delete" @click="eliminarEtiqueta(index)"> <i
-                                            class="fa-sharp fa-solid fa-trash"></i></b-button>
+                                    <b-button variant="danger" class="btn-delete" @click="eliminarEtiqueta(index,item)"> 
+                                        <i class="fa-sharp fa-solid fa-trash"></i></b-button>
 
                                 </b-col>
 
@@ -111,7 +144,8 @@
             </div>
 
             <section class="form-button mt-4">
-                <b-button variant="primary mx-3" @click="saveClient">Save</b-button>
+                <!-- <b-button variant="primary mx-3" @click="saveClient">Save</b-button> -->
+                <b-button type="submit" variant="primary mx-3" >{{ nameButton }}</b-button>
                 <b-link :to="{ name: 'index-cliente' }" class="btn btn-danger">Cancel</b-link>
             </section>
         </b-form>
@@ -122,11 +156,10 @@
   
   
 <script>
-
+import { required, email } from 'vuelidate/lib/validators';
 import axios from 'axios';
 import Swal from 'sweetalert2'
 
-// import { required, email } from 'vuelidate/lib/validators';
 
 export default {
     name: "CreateClient",
@@ -138,10 +171,13 @@ export default {
     },
     data() {
         return {
+            deletePayment:[],
             estado :true,
+            nameButton :'Save',
             showDismissibleAlert: false,
+            enviado :false,
             form: {
-                id:0,
+                id:this.id,
                 email: '',
                 first_name: '',
                 last_name: '',
@@ -152,7 +188,76 @@ export default {
             }
         }
     },
+
+    validations:{
+        form: {
+                email: {
+                   required,email
+                },
+                first_name: {required},
+                last_name: {required},
+                dob: {required},
+                phone: {required},
+                address: {required},
+               
+            }
+
+
+    
+    },
+
     methods: {
+        async saveClient(){
+            
+            var idUsuario = this.id;
+
+            if (idUsuario == 0 ) {
+                console.log(this.form);
+                            // Si el formulario es invalido, no continua
+                if (this.$v.$invalid) {
+
+                    this.enviado=true;
+                    return;
+                }
+
+                this.form.token = localStorage.getItem("token");
+                const response = await axios.post('http://127.0.0.1:8000/api/client/store', this.form);
+
+                if (response.data.message == 'Exito') {
+                    Swal.fire('¡Correcto!', 'Se Registro Correctamente !!!', 'success');
+                    // this.clearData();
+                    this.$router.push({ name: 'index-cliente' })
+                }
+                console.log("Formulario valido");
+
+                console.log("Entro para guardar");
+                console.log(this.form);
+                
+            }
+            else{
+                // console.log("Entro para actualizar");
+                // console.log(this.form);
+
+                this.form.deletePayment = this.deletePayment;
+                this.form.token = localStorage.getItem("token");
+
+                console.log(this.form);
+
+                const response = await axios.post('http://127.0.0.1:8000/api/client/update', this.form);
+
+                if (response.data.message == 'Exito') {
+                    Swal.fire('¡Correcto!', 'Se Actualizo Correctamente !!!', 'success');
+                    // this.clearData();
+                    this.$router.push({ name: 'index-cliente' })
+                }
+                console.log("Formulario valido");
+
+                console.log(this.deletePayment);
+            }
+
+           
+        },
+
         addPayment() {
             if (this.form.payments.length <5) {
                 this.showDismissibleAlert=false;
@@ -172,22 +277,15 @@ export default {
         
 
         },
-        eliminarEtiqueta(index) {
+        eliminarEtiqueta(index,element) {
             this.form.payments.splice(index, 1);
             this.estado = true;
+
+            this.deletePayment.push(element);
+            console.log(index);
+            console.log(element);
         },
 
-        async saveClient() {
-
-            this.form.token = localStorage.getItem("token");
-            const response = await axios.post('http://127.0.0.1:8000/api/client/store', this.form);
-
-            if (response.data.message == 'Exito') {
-                Swal.fire('¡Correcto!', 'Se Registro Correctamente !!!', 'success');
-                this.clearData();
-                this.$router.push({name :'index-cliente'})
-            }
-        },
 
         clearData(){
             this.form.email='';
@@ -201,13 +299,46 @@ export default {
         countDownChanged(dismissCountDown) {
         this.dismissCountDown = dismissCountDown
       },
-    }
+      async editClient(){
+            const response = await axios.get(`http://127.0.0.1:8000/api/client/edit/${this.id}`);
+            if(response.status == 200){
+                console.log(response)
+                this.form.email = response.data[0].email
+                this.form.first_name = response.data[0].first_name
+                this.form.last_name = response.data[0].last_name
+                this.form.dob = response.data[0].dob
+                this.form.phone = response.data[0].phone
+                this.form.address = response.data[0].address
+                this.form.payments = JSON.parse(response.data[0].payments)
+
+            }
+
+        },
+
+                 
+
+    },
+    async mounted() {
+        if(this.id != 0){
+            await this.editClient();
+            this.nameButton ='Update';
+        }
+
+        
+    },
 
 
 }
 </script>
   
 <style scoped>
+
+.errorMessage{
+    color: red;
+    font-size: 12px;
+    background-color: #FFEEEE;
+    padding: 7px;
+}
 .leftt {
     align-items: left;
 }

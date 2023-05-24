@@ -48,7 +48,6 @@ export default {
         async getClients() {
             const response = await axios.get('http://127.0.0.1:8000/api/client/list')
             this.item = response.data
-            console.log(this.item);
         },
 
         async deleteClient(id) {
@@ -67,6 +66,8 @@ export default {
             }
         },
         editarRegistro(id) {
+
+            console.log(id);
             this.$router.push({name:'edit',params:{id}})
         },
 
@@ -88,6 +89,8 @@ export default {
         }
 
     },
+
+
     created() {
         this.getClients()
     },
