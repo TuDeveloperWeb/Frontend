@@ -250,7 +250,7 @@ export default {
                     // this.clearData();
                     this.$router.push({ name: 'index-cliente' })
                 }
-                console.log("Formulario valido");
+                console.log("Formulario validsso"); 
 
                 console.log(this.deletePayment);
             }
